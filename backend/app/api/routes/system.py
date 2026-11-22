@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.ml.status import text_model_configured
 from app.ocr.engine import ocr_available
+from app.ocr.tesseract_ocr import kazakh_ocr_ready
 from app.schemas.system import CapabilitiesResponse, Capability
 
 router = APIRouter(tags=["system"])
@@ -28,7 +29,7 @@ def capabilities() -> CapabilitiesResponse:
                 key="screenshot_analysis",
                 status="ready" if screenshot_ready else "unavailable",
                 stage=3,
-                note_code="ocr_local" if screenshot_ready else "ocr_not_available",
+                note_code=("ocr_kazakh" if kazakh_ocr_ready() else "ocr_local") if screenshot_ready else "ocr_not_available",
             ),
             Capability(
                 key="url_analysis",

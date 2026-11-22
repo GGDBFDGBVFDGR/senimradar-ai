@@ -25,10 +25,11 @@ def _png(lines: list[str], size: tuple[int, int] = (1100, 520), blur: float = 0)
     return buffer.getvalue()
 
 
-def _post(client, payload: bytes, name: str = "shot.png", content_type: str = "image/png"):
+def _post(client, payload: bytes, name: str = "shot.png", content_type: str = "image/png", language: str = "auto"):
     return client.post(
         "/api/v1/analysis/screenshot",
         files={"upload": (name, payload, content_type)},
+        data={"language": language},
     )
 
 
@@ -93,7 +94,9 @@ def test_kazakh_ocr_does_not_become_a_fraud_verdict(client):
     assert response.status_code == 200
     body = response.json()
     assert body["status"] in {"ok", "no_text"}
-    assert "kazakh_ocr_unsupported" in body["warnings"]
+    assert body["engine"] == "tesseract"
+    assert body["ml_language"] == "kk"
+    assert body["language_locked"] is True
     assert "risk_level" not in body
     verdict = analyze_message(source, "kk")
     assert verdict["risk_level"] == "unknown"

@@ -19,6 +19,6 @@ router = APIRouter(tags=["analysis"])
     },
 )
 def analyze_text(payload: TextAnalysisRequest) -> JSONResponse:
-    result = assess_text(payload.text, payload.language)
+    result = assess_text(payload.text, payload.language, payload.image_language)
     status_code = 503 if isinstance(result, UnavailableAnalysis) else 200
     return JSONResponse(status_code=status_code, content=result.model_dump())

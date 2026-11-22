@@ -11,6 +11,7 @@ import { PageHeader } from "../components/ui/PageHeader.tsx";
 const MAX_BYTES = 8 * 1024 * 1024;
 
 type Phase = "idle" | "selected" | "recognizing" | "ok" | "no_text" | "analyzing" | "done" | "error";
+type ImageLanguage = "auto" | "ru" | "kk";
 
 export function ScreenshotPage() {
   const { messages } = useI18n();
@@ -19,7 +20,9 @@ export function ScreenshotPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [text, setText] = useState("");
   const [warnings, setWarnings] = useState<string[]>([]);
-  const [language, setLanguage] = useState("ru");
+  const [imageLanguage, setImageLanguage] = useState<ImageLanguage>("auto");
+  const [analysisLanguage, setAnalysisLanguage] = useState("");
+  const [languageLocked, setLanguageLocked] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TextAnalysisResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -40,11 +43,23 @@ export function ScreenshotPage() {
       }
       return next ? URL.createObjectURL(next) : null;
     });
+    clearReading();
+    setPhase(next ? "selected" : "idle");
+  }
+
+  function clearReading() {
     setText("");
     setWarnings([]);
     setResult(null);
     setError(null);
-    setPhase(next ? "selected" : "idle");
+    setLanguageLocked(false);
+    setAnalysisLanguage("");
+  }
+
+  function changeImageLanguage(next: ImageLanguage) {
+    setImageLanguage(next);
+    clearReading();
+    setPhase(file ? "selected" : "idle");
   }
 
   function onDrop(event: DragEvent<HTMLLabelElement>) {
@@ -68,32 +83,31 @@ export function ScreenshotPage() {
     setPhase("recognizing");
     setError(null);
     setResult(null);
-    const ocr = await submitScreenshot(file);
+    const ocr = await submitScreenshot(file, imageLanguage);
     if (ocr.kind === "error") {
       setPhase("error");
       setError(ocr.code);
       setText("");
       setWarnings([]);
+      setLanguageLocked(false);
       return;
     }
     setText(ocr.text);
     setWarnings(ocr.warnings);
+    setLanguageLocked(ocr.languageLocked);
+    setAnalysisLanguage(ocr.mlLanguage === "unconfirmed" ? "" : ocr.mlLanguage);
     setPhase(ocr.kind);
-    if (ocr.warnings.includes("kazakh_glyphs_detected")) {
-      setLanguage("kk");
-    } else if (ocr.warnings.includes("low_ocr_confidence")) {
-      setLanguage("unknown");
-    }
   }
 
   async function analyze() {
     const trimmed = text.trim();
-    if (!trimmed || phase === "analyzing") {
+    if (!trimmed || phase === "analyzing" || analysisLanguage === "") {
       return;
     }
     setPhase("analyzing");
     setError(null);
-    const next = await submitTextAnalysis(trimmed, language);
+    const kazakh = languageLocked || analysisLanguage === "kk" || imageLanguage === "kk";
+    const next = await submitTextAnalysis(trimmed, kazakh ? "kk" : analysisLanguage, kazakh ? "kk" : "ru");
     setResult(next);
     setPhase(next.kind === "error" ? "error" : "done");
     if (next.kind === "error") {
@@ -102,12 +116,31 @@ export function ScreenshotPage() {
   }
 
   const errorText = error ? (messages.screenshot.error[error as keyof typeof messages.screenshot.error] ?? error) : null;
+  const showReading = phase === "ok" || phase === "no_text" || phase === "analyzing" || phase === "done";
 
   return (
     <div className="space-y-6">
       <PageHeader eyebrow={messages.scanner.eyebrow} title={messages.screenshot.title} description={messages.screenshot.lead} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
         <Card>
+          <fieldset>
+            <legend className="text-sm font-semibold text-ink">{messages.screenshot.imageLanguageLabel}</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {(["auto", "ru", "kk"] as const).map((value) => (
+                <label key={value} className="inline-flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-sm text-ink">
+                  <input
+                    type="radio"
+                    name="image-language"
+                    value={value}
+                    checked={imageLanguage === value}
+                    onChange={() => changeImageLanguage(value)}
+                  />
+                  {value === "auto" ? messages.screenshot.langAuto : value === "ru" ? messages.scanner.langRu : messages.scanner.langKk}
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-sm leading-6 text-muted">{messages.screenshot.imageLanguageHint}</p>
+          </fieldset>
           <label
             htmlFor="screenshot-file"
             onDragOver={(event) => {
@@ -116,7 +149,7 @@ export function ScreenshotPage() {
             }}
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
-            className={`block rounded-xl border border-dashed px-4 py-8 text-center ${dragOver ? "border-cyan-300 bg-cyan-400/10" : "border-line"}`}
+            className={`mt-4 block rounded-xl border border-dashed px-4 py-8 text-center ${dragOver ? "border-cyan-300 bg-cyan-400/10" : "border-line"}`}
           >
             <p className="text-sm font-semibold text-ink">{messages.screenshot.drop}</p>
             <p className="mt-2 text-sm text-muted">{messages.screenshot.fileHint}</p>
@@ -152,7 +185,7 @@ export function ScreenshotPage() {
               {errorText}
             </p>
           ) : null}
-          {phase === "ok" || phase === "no_text" || phase === "analyzing" || phase === "done" ? (
+          {showReading ? (
             <div className="mt-5 space-y-3">
               <h2 className="font-display text-lg font-bold text-ink">{messages.screenshot.ocrTitle}</h2>
               {phase === "no_text" ? <p className="text-sm leading-6 text-amber-50">{messages.screenshot.noText}</p> : null}
@@ -174,24 +207,25 @@ export function ScreenshotPage() {
               <p id="ocr-hint" className="text-sm leading-6 text-muted">
                 {messages.screenshot.textHint}
               </p>
+              {analysisLanguage === "" ? <p className="text-sm leading-6 text-amber-50">{messages.screenshot.confirmLanguage}</p> : null}
               <label htmlFor="ocr-language" className="text-sm font-semibold text-ink">
                 {messages.screenshot.languageLabel}
               </label>
               <select
                 id="ocr-language"
-                value={language}
-                onChange={(event) => setLanguage(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-line bg-navy-950 px-3 py-2.5 text-sm text-ink"
+                value={languageLocked ? "kk" : analysisLanguage}
+                disabled={languageLocked}
+                onChange={(event) => setAnalysisLanguage(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-line bg-navy-950 px-3 py-2.5 text-sm text-ink disabled:opacity-70"
               >
+                <option value="">{messages.screenshot.confirmLanguage}</option>
                 <option value="ru">{messages.scanner.langRu}</option>
                 <option value="kk">{messages.scanner.langKk}</option>
-                <option value="en">{messages.scanner.langEn}</option>
-                <option value="unknown">{messages.scanner.langUnknown}</option>
               </select>
               <button
                 type="button"
                 onClick={analyze}
-                disabled={text.trim().length === 0 || phase === "analyzing"}
+                disabled={text.trim().length === 0 || phase === "analyzing" || analysisLanguage === ""}
                 className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {phase === "analyzing" ? messages.screenshot.analyzing : messages.screenshot.analyze}

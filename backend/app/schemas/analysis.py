@@ -10,6 +10,7 @@ class TextAnalysisRequest(BaseModel):
 
     text: str = Field(min_length=1, max_length=MAX_TEXT_LENGTH)
     language: Literal["ru", "kk", "en", "unknown"] = "unknown"
+    image_language: Literal["ru", "kk"] | None = None
 
     @field_validator("text")
     @classmethod
@@ -27,9 +28,12 @@ class TextAnalysisRequest(BaseModel):
 class ScreenshotOcrResult(BaseModel):
     status: Literal["ok", "no_text"]
     text: str
-    engine: Literal["apple_vision"]
+    engine: Literal["apple_vision", "tesseract"]
     warnings: list[str]
     line_count: int
+    selected_language: Literal["auto", "ru", "kk"]
+    ml_language: Literal["ru", "kk", "unconfirmed"]
+    language_locked: bool
 
 
 class UnavailableAnalysis(BaseModel):

@@ -7,9 +7,18 @@ from app.schemas.analysis import TextAnalysisResult, UnavailableAnalysis
 LanguageCode = Literal["ru", "kk", "en", "unknown"]
 
 
-def assess_text(text: str, language: LanguageCode) -> TextAnalysisResult | UnavailableAnalysis:
-    """Classify text with the local model. The text is not stored or logged."""
+def assess_text(
+    text: str,
+    language: LanguageCode,
+    image_language: Literal["ru", "kk"] | None = None,
+) -> TextAnalysisResult | UnavailableAnalysis:
+    """Classify text with the local model. The text is not stored or logged.
 
+    A Kazakh screenshot choice forces the unevaluated path even if OCR replaced the letters.
+    """
+
+    if image_language == "kk":
+        language = "kk"
     if not text_model_configured():
         return UnavailableAnalysis(
             status="unavailable",

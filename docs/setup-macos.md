@@ -75,4 +75,13 @@ alembic upgrade head
 xcrun swiftc --version
 ```
 
-Tesseract на этой машине не установлен. Казахский пакет `kaz` тоже не ставился: Apple Vision не содержит казахского языка, а ставить второй тяжёлый распознаватель только ради неподтверждённого качества не нужно. Если позже появится отдельная проверка казахского OCR, её нужно измерять отдельно от модели мошенничества.
+22 ноября 2026 установлен Tesseract 5.5.4, лицензия Apache-2.0. Полный пакет `tesseract-lang` не ставился: он скачивает все языки. Отдельно добавлены только `kaz.traineddata` (7.2 МБ) и `rus.traineddata` (15 МБ) из `tessdata_best`, тоже Apache-2.0.
+
+```bash
+brew install tesseract
+curl -L -o "$(brew --prefix)/share/tessdata/kaz.traineddata" https://github.com/tesseract-ocr/tessdata_best/raw/main/kaz.traineddata
+curl -L -o "$(brew --prefix)/share/tessdata/rus.traineddata" https://github.com/tesseract-ocr/tessdata_best/raw/main/rus.traineddata
+tesseract --list-langs
+```
+
+Проверка показала `eng`, `kaz`, `osd` и `rus`. Русский режим скриншота по-прежнему использует Apple Vision. Казахский режим использует Tesseract `kaz+rus`. Подробности в [stage-3-1.md](stage-3-1.md).

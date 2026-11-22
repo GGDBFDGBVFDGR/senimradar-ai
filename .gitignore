@@ -5,6 +5,7 @@
 **/.mysql-init.sql
 backend/data/
 backend/app/ocr/vision_ocr
+*.traineddata
 
 **/__pycache__/
 **/*.py[cod]

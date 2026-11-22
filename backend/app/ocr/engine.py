@@ -7,17 +7,12 @@ import subprocess
 from pathlib import Path
 
 from app.ml.preprocess import looks_kazakh
+from app.ocr.errors import OcrError
 
 MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024
 OCR_TIMEOUT_SECONDS = 20
 MAX_OCR_CHARS = 8000
 _BINARY_NAME = "vision_ocr"
-
-
-class OcrError(Exception):
-    def __init__(self, code: str) -> None:
-        self.code = code
-        super().__init__(code)
 
 
 def _source_path() -> Path:
@@ -65,11 +60,62 @@ def image_format(payload: bytes) -> str | None:
     return None
 
 
-def extract_text(payload: bytes) -> dict:
+def extract_text(payload: bytes, language: str = "auto") -> dict:
+    if language not in {"auto", "ru", "kk"}:
+        raise OcrError("invalid_language")
     if len(payload) > MAX_SCREENSHOT_BYTES:
         raise OcrError("payload_too_large")
     if image_format(payload) is None:
         raise OcrError("unsupported_type")
+    if language == "kk":
+        return _finish(_read_tesseract(payload), language, "kk", True)
+    if language == "ru":
+        result = _read_vision(payload)
+        ml_language = "ru" if result["text"] else "unconfirmed"
+        return _finish(result, language, ml_language, False)
+    tesseract_result = _read_tesseract_for_detection(payload)
+    if tesseract_result is not None and looks_kazakh(tesseract_result["text"]):
+        tesseract_result["warnings"].append("kazakh_script_detected")
+        return _finish(tesseract_result, "auto", "kk", True)
+    vision = _read_vision(payload)
+    if tesseract_result is None:
+        vision["warnings"].append("language_unconfirmed")
+        return _finish(vision, "auto", "unconfirmed", False)
+    vision["warnings"].append("language_checked")
+    ml_language = "ru" if vision["text"] else "unconfirmed"
+    return _finish(vision, "auto", ml_language, False)
+
+
+def _read_tesseract(payload: bytes) -> dict:
+    from app.ocr.tesseract_ocr import read_tesseract
+
+    return read_tesseract(payload)
+
+
+def _read_tesseract_for_detection(payload: bytes) -> dict | None:
+    from app.ocr.tesseract_ocr import kazakh_ocr_ready
+
+    if not kazakh_ocr_ready():
+        return None
+    try:
+        return _read_tesseract(payload)
+    except OcrError:
+        return None
+
+
+def _finish(result: dict, selected_language: str, ml_language: str, language_locked: bool) -> dict:
+    if looks_kazakh(result["text"]):
+        ml_language = "kk"
+        language_locked = True
+        if "kazakh_glyphs_detected" not in result["warnings"]:
+            result["warnings"].append("kazakh_glyphs_detected")
+    result["selected_language"] = selected_language
+    result["ml_language"] = ml_language
+    result["language_locked"] = language_locked
+    return result
+
+
+def _read_vision(payload: bytes) -> dict:
     binary = ensure_ocr_binary()
     try:
         completed = subprocess.run(

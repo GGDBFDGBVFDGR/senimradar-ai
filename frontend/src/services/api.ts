@@ -57,7 +57,11 @@ export function getCapabilities(): Promise<CapabilitiesResponse> {
   return getJson<CapabilitiesResponse>("/api/v1/system/capabilities");
 }
 
-export async function submitTextAnalysis(text: string, language: string): Promise<TextAnalysisResult> {
+export async function submitTextAnalysis(
+  text: string,
+  language: string,
+  imageLanguage?: "ru" | "kk",
+): Promise<TextAnalysisResult> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}/api/v1/analysis/text`, {
@@ -66,7 +70,7 @@ export async function submitTextAnalysis(text: string, language: string): Promis
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text, language }),
+      body: JSON.stringify(imageLanguage ? { text, language, image_language: imageLanguage } : { text, language }),
     });
   } catch {
     return { kind: "error" };
@@ -130,12 +134,22 @@ export async function submitTextAnalysis(text: string, language: string): Promis
 }
 
 export type ScreenshotOcrResult =
-  | { kind: "ok" | "no_text"; text: string; engine: string; warnings: string[]; lineCount: number }
+  | {
+      kind: "ok" | "no_text";
+      text: string;
+      engine: string;
+      warnings: string[];
+      lineCount: number;
+      selectedLanguage: string;
+      mlLanguage: "ru" | "kk" | "unconfirmed";
+      languageLocked: boolean;
+    }
   | { kind: "error"; code: string };
 
-export async function submitScreenshot(file: File): Promise<ScreenshotOcrResult> {
+export async function submitScreenshot(file: File, language: "auto" | "ru" | "kk"): Promise<ScreenshotOcrResult> {
   const body = new FormData();
   body.append("upload", file, "screenshot");
+  body.append("language", language);
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}/api/v1/analysis/screenshot`, {
@@ -153,7 +167,11 @@ export async function submitScreenshot(file: File): Promise<ScreenshotOcrResult>
       engine?: unknown;
       warnings?: unknown;
       line_count?: unknown;
+      selected_language?: unknown;
+      ml_language?: unknown;
+      language_locked?: unknown;
     };
+    const mlLanguage = payload.ml_language === "ru" || payload.ml_language === "kk" ? payload.ml_language : "unconfirmed";
     if ((payload.status === "ok" || payload.status === "no_text") && typeof payload.text === "string") {
       return {
         kind: payload.status,
@@ -161,6 +179,9 @@ export async function submitScreenshot(file: File): Promise<ScreenshotOcrResult>
         engine: typeof payload.engine === "string" ? payload.engine : "apple_vision",
         warnings: stringList(payload.warnings),
         lineCount: typeof payload.line_count === "number" ? payload.line_count : 0,
+        selectedLanguage: typeof payload.selected_language === "string" ? payload.selected_language : language,
+        mlLanguage,
+        languageLocked: payload.language_locked === true || mlLanguage === "kk",
       };
     }
     return { kind: "error", code: "request_failed" };

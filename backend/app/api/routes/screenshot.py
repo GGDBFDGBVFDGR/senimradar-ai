@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
 from app.core.limits import MAX_SCREENSHOT_BYTES
@@ -20,19 +20,20 @@ router = APIRouter(tags=["analysis"])
         503: {"model": ErrorResponse},
     },
 )
-async def recognize_screenshot(upload: UploadFile = File()) -> JSONResponse:
+async def recognize_screenshot(upload: UploadFile = File(), language: str = Form("auto")) -> JSONResponse:
     """Read text from an image. The file is not stored and the text is not logged."""
 
     payload = await upload.read(MAX_SCREENSHOT_BYTES + 1)
     await upload.close()
     try:
-        result = extract_text(payload)
+        result = extract_text(payload, language)
     except OcrError as exc:
         status = {
             "payload_too_large": 413,
             "unsupported_type": 415,
             "ocr_timeout": 408,
             "ocr_not_available": 503,
+            "kazakh_ocr_unavailable": 503,
         }.get(exc.code, 422)
         return JSONResponse(status_code=status, content={"status": "error", "code": exc.code})
     body = ScreenshotOcrResult.model_validate(result)

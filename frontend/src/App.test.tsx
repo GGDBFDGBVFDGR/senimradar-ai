@@ -152,6 +152,9 @@ it("reads a screenshot as text before the existing model sees it", async () => {
         engine: "apple_vision",
         warnings: [],
         line_count: 1,
+        selected_language: "ru",
+        ml_language: "ru",
+        language_locked: false,
       });
     }
     if (url.endsWith("/api/v1/analysis/text") && init?.method === "POST") {
@@ -193,6 +196,65 @@ it("reads a screenshot as text before the existing model sees it", async () => {
   expect(result).toHaveTextContent("tfidf-linearsvm-0001m");
   expect(screen.getByText("Распознавание")).toBeInTheDocument();
   expect(screen.getByText("Оценка модели")).toBeInTheDocument();
+});
+
+it("does not score a Kazakh screenshot with the Russian model", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.mocked(fetch);
+  fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.endsWith("/api/v1/analysis/screenshot") && init?.method === "POST") {
+      return json({
+        status: "ok",
+        text: "Срочно переведите деньги",
+        engine: "tesseract",
+        warnings: ["kazakh_script_detected"],
+        line_count: 1,
+        selected_language: "kk",
+        ml_language: "kk",
+        language_locked: true,
+      });
+    }
+    if (url.endsWith("/api/v1/analysis/text") && init?.method === "POST") {
+      const sent = JSON.parse(String(init.body));
+      expect(sent.language).toBe("kk");
+      expect(sent.image_language).toBe("kk");
+      return json({
+        status: "ok",
+        language: "kk",
+        language_evaluation: "not_evaluated",
+        model_version: "tfidf-linearsvm-0001m",
+        risk_level: "unknown",
+        risk_score: null,
+        uncertain: true,
+        indicators: [],
+        cues: [],
+        recommendations: ["result_uncertain"],
+        limitations: ["kazakh_not_evaluated"],
+      });
+    }
+    if (url.endsWith("/api/v1/health/ready")) {
+      return json({ status: "ok", database: "ok" });
+    }
+    if (url.endsWith("/api/v1/health")) {
+      return json({ status: "ok", service: "SenimRadar AI", version: "0.1.0", environment: "test" });
+    }
+    if (url.endsWith("/api/v1/system/capabilities")) {
+      return json(capabilities);
+    }
+    return json({ status: "error", code: "not_found" }, 404);
+  });
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "Скриншоты" }));
+  await user.click(screen.getByRole("radio", { name: "Казахский" }));
+  const input = screen.getByLabelText(/Перетащите снимок/);
+  await user.upload(input, new File([new Uint8Array([137, 80, 78, 71])], "shot.png", { type: "image/png" }));
+  await user.click(screen.getByRole("button", { name: "Распознать текст" }));
+  expect(await screen.findByLabelText("Язык для проверки")).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "Проверить текст" }));
+  const result = await screen.findByTestId("screenshot-analysis");
+  expect(result).toHaveTextContent("Неопределённый риск");
+  expect(result).not.toHaveTextContent("Высокий предполагаемый риск");
 });
 
 it("keeps unfinished modules from accepting data", async () => {
