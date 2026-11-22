@@ -24,6 +24,14 @@ class TextAnalysisRequest(BaseModel):
         return stripped
 
 
+class ScreenshotOcrResult(BaseModel):
+    status: Literal["ok", "no_text"]
+    text: str
+    engine: Literal["apple_vision"]
+    warnings: list[str]
+    line_count: int
+
+
 class UnavailableAnalysis(BaseModel):
     status: Literal["unavailable"]
     code: Literal["model_not_configured", "inference_not_implemented"]

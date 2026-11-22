@@ -4,6 +4,7 @@
 !**/.env.example
 **/.mysql-init.sql
 backend/data/
+backend/app/ocr/vision_ocr
 
 **/__pycache__/
 **/*.py[cod]

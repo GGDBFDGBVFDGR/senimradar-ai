@@ -140,11 +140,66 @@ it("shows a real model result without a percentage", async () => {
   expect(result).not.toHaveTextContent("%");
 });
 
+it("reads a screenshot as text before the existing model sees it", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.mocked(fetch);
+  fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.endsWith("/api/v1/analysis/screenshot") && init?.method === "POST") {
+      return json({
+        status: "ok",
+        text: "Срочно переведите деньги",
+        engine: "apple_vision",
+        warnings: [],
+        line_count: 1,
+      });
+    }
+    if (url.endsWith("/api/v1/analysis/text") && init?.method === "POST") {
+      return json({
+        status: "ok",
+        language: "ru",
+        language_evaluation: "evaluated",
+        model_version: "tfidf-linearsvm-0001m",
+        risk_level: "high",
+        risk_score: null,
+        uncertain: false,
+        indicators: ["payment_request"],
+        cues: ["переведите"],
+        recommendations: ["not_proof", "do_not_transfer"],
+        limitations: ["synthetic_training_data"],
+      });
+    }
+    if (url.endsWith("/api/v1/health/ready")) {
+      return json({ status: "ok", database: "ok" });
+    }
+    if (url.endsWith("/api/v1/health")) {
+      return json({ status: "ok", service: "SenimRadar AI", version: "0.1.0", environment: "test" });
+    }
+    if (url.endsWith("/api/v1/system/capabilities")) {
+      return json(capabilities);
+    }
+    return json({ status: "error", code: "not_found" }, 404);
+  });
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "Скриншоты" }));
+  const input = screen.getByLabelText(/Перетащите снимок/);
+  const file = new File([new Uint8Array([137, 80, 78, 71])], "shot.png", { type: "image/png" });
+  await user.upload(input, file);
+  await user.click(screen.getByRole("button", { name: "Распознать текст" }));
+  expect(await screen.findByLabelText("Распознанный текст")).toHaveValue("Срочно переведите деньги");
+  await user.click(screen.getByRole("button", { name: "Проверить текст" }));
+  const result = await screen.findByTestId("screenshot-analysis");
+  expect(result).toHaveTextContent("Высокий предполагаемый риск");
+  expect(result).toHaveTextContent("tfidf-linearsvm-0001m");
+  expect(screen.getByText("Распознавание")).toBeInTheDocument();
+  expect(screen.getByText("Оценка модели")).toBeInTheDocument();
+});
+
 it("keeps unfinished modules from accepting data", async () => {
   const user = userEvent.setup();
   render(<App />);
   await user.click(screen.getByRole("link", { name: "Скриншоты" }));
-  expect(screen.getByLabelText("Файл скриншота")).toBeDisabled();
+  expect(screen.getByLabelText(/Перетащите снимок/)).not.toBeDisabled();
   await user.click(screen.getByRole("link", { name: "Ссылки" }));
   expect(screen.getByLabelText("Адрес")).toBeDisabled();
   await user.click(screen.getByRole("link", { name: "История" }));

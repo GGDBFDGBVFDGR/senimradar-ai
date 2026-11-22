@@ -2,6 +2,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from app.core.limits import MAX_SCREENSHOT_REQUEST_BYTES
 from app.core.rate_limit import RateLimiter
 
 
@@ -35,7 +36,8 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
                 status_code=400,
                 content={"status": "error", "code": "invalid_content_length"},
             )
-        if length > self.max_bytes:
+        limit = MAX_SCREENSHOT_REQUEST_BYTES if request.url.path.endswith("/analysis/screenshot") else self.max_bytes
+        if length > limit:
             return JSONResponse(
                 status_code=413,
                 content={"status": "error", "code": "payload_too_large"},

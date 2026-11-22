@@ -129,6 +129,47 @@ export async function submitTextAnalysis(text: string, language: string): Promis
   return { kind: "error" };
 }
 
+export type ScreenshotOcrResult =
+  | { kind: "ok" | "no_text"; text: string; engine: string; warnings: string[]; lineCount: number }
+  | { kind: "error"; code: string };
+
+export async function submitScreenshot(file: File): Promise<ScreenshotOcrResult> {
+  const body = new FormData();
+  body.append("upload", file, "screenshot");
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/v1/analysis/screenshot`, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body,
+    });
+  } catch {
+    return { kind: "error", code: "network" };
+  }
+  if (response.status === 200) {
+    const payload = (await response.json()) as {
+      status?: unknown;
+      text?: unknown;
+      engine?: unknown;
+      warnings?: unknown;
+      line_count?: unknown;
+    };
+    if ((payload.status === "ok" || payload.status === "no_text") && typeof payload.text === "string") {
+      return {
+        kind: payload.status,
+        text: payload.text,
+        engine: typeof payload.engine === "string" ? payload.engine : "apple_vision",
+        warnings: stringList(payload.warnings),
+        lineCount: typeof payload.line_count === "number" ? payload.line_count : 0,
+      };
+    }
+    return { kind: "error", code: "request_failed" };
+  }
+  const payload = (await response.json().catch(() => null)) as { code?: unknown } | null;
+  const code = typeof payload?.code === "string" ? payload.code : "request_failed";
+  return { kind: "error", code };
+}
+
 function stringList(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];

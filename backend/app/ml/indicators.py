@@ -33,7 +33,7 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "payment_request",
         re.compile(
-            r"перевед\w*|перевод\w*|оплат\w*|wire\b|processing fee|ақша\s+аудар|төлең|төлем",
+            r"перевед(?:и|ите|ить)\b|отправьте\s+(?:деньги|сумму)|wire\b|processing fee|ақшаны\s+аударыңыз|аударыңыз|төлеңіз",
             re.IGNORECASE,
         ),
     ),
@@ -42,6 +42,9 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"парол\w*|password|құпиясөз|seed phrase|сид-фраз", re.IGNORECASE),
     ),
 )
+
+_PASSWORD_DENIAL_RE = re.compile(r"не\s+парол|не\s+құпиясөз|this is not a password", re.IGNORECASE)
+_PASSWORD_DEMAND_RE = re.compile(r"введите\s+парол|сообщите\s+парол|напишите\s+парол|enter\s+password", re.IGNORECASE)
 
 
 def detect_indicators(text: str) -> list[str]:
@@ -52,12 +55,16 @@ def detect_indicators(text: str) -> list[str]:
             continue
         if warning and code in {"otp_request", "password_request", "payment_request"}:
             continue
+        if code == "password_request" and _PASSWORD_DENIAL_RE.search(text) and _PASSWORD_DEMAND_RE.search(text) is None:
+            continue
         found.append(code)
     return found
 
 
 def recommendation_codes(indicators: list[str], risk_level: str, uncertain: bool) -> list[str]:
     codes: list[str] = ["not_proof"] if risk_level in {"medium", "high"} else []
+    if risk_level == "low":
+        codes.append("low_not_safe")
     if "fraud_warning" in indicators:
         codes.append("warning_not_a_request")
     if "otp_request" in indicators or "password_request" in indicators:
