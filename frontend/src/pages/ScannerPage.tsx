@@ -122,6 +122,9 @@ function ResultPanel({ pending, result }: { pending: boolean; result: TextAnalys
   if (!result) {
     return <p className="text-sm leading-6 text-muted">{messages.scanner.emptyResult}</p>;
   }
+  if (result.kind === "ok" || result.kind === "insufficient") {
+    return <CompletedResult result={result} />;
+  }
   if (result.kind === "unavailable") {
     return (
       <div className="rounded-xl border border-amber-200/20 bg-amber-300/10 p-4">
@@ -147,4 +150,77 @@ function ResultPanel({ pending, result }: { pending: boolean; result: TextAnalys
       <p className="mt-2 text-sm leading-6 text-rose-50/90">{copy.body}</p>
     </div>
   );
+}
+
+function CompletedResult({
+  result,
+}: {
+  result: Extract<TextAnalysisResult, { kind: "ok" | "insufficient" }>;
+}) {
+  const { messages } = useI18n();
+  const tone =
+    result.riskLevel === "high"
+      ? "border-rose-300/30 bg-rose-400/10"
+      : result.riskLevel === "medium"
+        ? "border-amber-200/30 bg-amber-300/10"
+        : "border-line bg-white/5";
+  return (
+    <div className={`space-y-4 rounded-xl border p-4 ${tone}`}>
+      <div>
+        <p className="text-base font-semibold text-ink">{messages.scanner.risk[result.riskLevel]}</p>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          {result.kind === "insufficient"
+            ? messages.scanner.insufficientBody
+            : result.riskLevel === "high" || result.riskLevel === "medium"
+              ? messages.scanner.recommendation.not_proof
+              : messages.scanner.limitation.not_a_proof}
+        </p>
+        {result.uncertain ? <p className="mt-2 text-sm leading-6 text-amber-50">{messages.scanner.uncertain}</p> : null}
+      </div>
+      <section>
+        <h3 className="text-sm font-semibold text-ink">{messages.scanner.indicatorsTitle}</h3>
+        {result.indicators.length === 0 ? (
+          <p className="mt-2 text-sm leading-6 text-muted">{messages.scanner.noIndicators}</p>
+        ) : (
+          <ul className="mt-2 space-y-1 text-sm leading-6 text-ink">
+            {result.indicators.map((code) => (
+              <li key={code}>{lookup(messages.scanner.indicator, code)}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+      {result.cues.length > 0 ? (
+        <section>
+          <h3 className="text-sm font-semibold text-ink">{messages.scanner.cuesTitle}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">{result.cues.join(" · ")}</p>
+        </section>
+      ) : null}
+      <section>
+        <h3 className="text-sm font-semibold text-ink">{messages.scanner.recommendationsTitle}</h3>
+        <ul className="mt-2 space-y-1 text-sm leading-6 text-ink">
+          {result.recommendations.map((code) => (
+            <li key={code}>{lookup(messages.scanner.recommendation, code)}</li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <h3 className="text-sm font-semibold text-ink">{messages.scanner.limitationsTitle}</h3>
+        <ul className="mt-2 space-y-1 text-sm leading-6 text-muted">
+          {result.limitations.map((code) => (
+            <li key={code}>{lookup(messages.scanner.limitation, code)}</li>
+          ))}
+        </ul>
+      </section>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
+        {lookup(messages.scanner.evaluation, result.languageEvaluation)}
+      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+        {formatMessage(messages.scanner.modelLine, { version: result.modelVersion })}
+      </p>
+    </div>
+  );
+}
+
+function lookup(table: Record<string, string>, code: string): string {
+  return table[code] ?? code;
 }

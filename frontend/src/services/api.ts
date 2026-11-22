@@ -72,6 +72,43 @@ export async function submitTextAnalysis(text: string, language: string): Promis
     return { kind: "error" };
   }
 
+  if (response.status === 200) {
+    const body = (await response.json()) as {
+      status?: unknown;
+      language?: unknown;
+      language_evaluation?: unknown;
+      model_version?: unknown;
+      risk_level?: unknown;
+      risk_score?: unknown;
+      uncertain?: unknown;
+      indicators?: unknown;
+      cues?: unknown;
+      recommendations?: unknown;
+      limitations?: unknown;
+    };
+    const risk = body.risk_level;
+    if (
+      (body.status === "ok" || body.status === "insufficient") &&
+      (risk === "low" || risk === "medium" || risk === "high" || risk === "unknown") &&
+      body.risk_score == null &&
+      typeof body.model_version === "string"
+    ) {
+      return {
+        kind: body.status,
+        language: typeof body.language === "string" ? body.language : "unknown",
+        languageEvaluation: typeof body.language_evaluation === "string" ? body.language_evaluation : "not_confirmed",
+        modelVersion: body.model_version,
+        riskLevel: risk,
+        riskScore: null,
+        uncertain: body.uncertain === true,
+        indicators: stringList(body.indicators),
+        cues: stringList(body.cues),
+        recommendations: stringList(body.recommendations),
+        limitations: stringList(body.limitations),
+      };
+    }
+    return { kind: "error" };
+  }
   if (response.status === 503) {
     const body = (await response.json()) as { stage?: unknown; code?: unknown };
     return {
@@ -90,4 +127,11 @@ export async function submitTextAnalysis(text: string, language: string): Promis
     return { kind: "rate_limited" };
   }
   return { kind: "error" };
+}
+
+function stringList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is string => typeof item === "string");
 }

@@ -34,3 +34,19 @@ class UnavailableAnalysis(BaseModel):
     model_version: None = None
     risk_level: None = None
     risk_score: None = None
+
+
+class TextAnalysisResult(BaseModel):
+    status: Literal["ok", "insufficient"]
+    input_type: Literal["text"] = "text"
+    language: Literal["ru", "kk", "en", "unknown"]
+    language_evaluation: Literal["evaluated", "not_evaluated", "not_confirmed"]
+    model_version: str
+    risk_level: Literal["low", "medium", "high", "unknown"]
+    risk_score: None = None
+    confidence_calibrated: bool
+    uncertain: bool
+    indicators: list[str]
+    cues: list[str]
+    recommendations: list[str]
+    limitations: list[str]

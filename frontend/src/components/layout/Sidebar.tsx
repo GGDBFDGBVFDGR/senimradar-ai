@@ -1,11 +1,14 @@
 import { NavLink } from "react-router-dom";
 
+import { useSystemStatus } from "../../hooks/useSystemStatus.ts";
 import { useI18n } from "../../i18n/LanguageProvider.tsx";
 import { Logo } from "../ui/Logo.tsx";
 import { NAV_ITEMS } from "./navigation.ts";
 
 export function Sidebar({ onNavigate, onClose }: { onNavigate?: () => void; onClose?: () => void }) {
   const { messages } = useI18n();
+  const { capabilities } = useSystemStatus();
+  const modelReady = capabilities.data?.model_configured === true;
 
   return (
     <div className="flex h-full flex-col bg-navy-900 px-4 py-5">
@@ -44,7 +47,9 @@ export function Sidebar({ onNavigate, onClose }: { onNavigate?: () => void; onCl
           );
         })}
       </nav>
-      <p className="mt-auto px-3 pt-6 text-xs font-medium text-muted">{messages.common.modelOff}</p>
+      <p className="mt-auto px-3 pt-6 text-xs font-medium text-muted">
+        {modelReady ? messages.common.modelOn : messages.common.modelOff}
+      </p>
     </div>
   );
 }

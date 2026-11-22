@@ -1,0 +1,5 @@
+{
+  "model_version": "tfidf-linearsvm-0001m",
+  "artifact": "tfidf-linearsvm-0001m.joblib",
+  "card": "tfidf-linearsvm-0001m.json"
+}

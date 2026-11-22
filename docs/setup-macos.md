@@ -39,43 +39,26 @@ npm run dev
 
 `VITE_API_BASE_URL` по умолчанию — `http://127.0.0.1:8000`.
 
-## PostgreSQL
+## MySQL
 
-На машине разработки PostgreSQL 14 принимает подключения на `127.0.0.1:5432`. Роль `senimradar` при этом не проходит аутентификацию, поэтому `alembic upgrade head` завершается ошибкой и таблицы не созданы. Docker не установлен. Этап 1 не создаёт роль и не меняет чужую базу.
+На этой машине работает MySQL Community Server 9.4.0 и принимает TCP на `127.0.0.1:3306`. MySQL Workbench — только клиент; для проекта нужен именно сервер. PostgreSQL не используется. Docker не нужен.
 
-Пока роль не создана, интерфейс показывает «База данных не запущена». Остальные страницы открываются. API при этом отвечает на `/api/v1/health`.
+База проекта — `senimradar_ai`, кодировка `utf8mb4`. Пользователь приложения — `senimradar`. Ему выдаются права только на эту базу. Другие базы скрипт не открывает и не меняет.
 
-### Вариант с Docker
-
-После отдельной установки Docker Desktop:
+Пароль в чат и в код не записывается. `scripts/setup-mysql.sh` кладёт его в локальные `backend/.env` и `backend/.mysql-init.sql`. Оба файла игнорируются Git.
 
 ```bash
-docker compose up -d
+chmod +x scripts/setup-mysql.sh
+./scripts/setup-mysql.sh
+```
+
+Если переменная `MYSQL_ROOT_PASSWORD` не задана, скрипт не входит в MySQL от администратора. Тогда один раз в терминале:
+
+```bash
+mysql -u root -p < backend/.mysql-init.sql
 cd backend
 source .venv/bin/activate
 alembic upgrade head
 ```
 
-Compose публикует PostgreSQL 16 только на `127.0.0.1:5432`.
-
-### Вариант с Homebrew
-
-PostgreSQL 14 уже стоит. Запуск службы меняет состояние macOS, поэтому его нужно включить отдельно:
-
-```bash
-brew services start postgresql@14
-createuser senimradar
-createdb -O senimradar senimradar
-psql -d senimradar -c "ALTER USER senimradar WITH PASSWORD 'senimradar';"
-```
-
-Затем из `backend`:
-
-```bash
-source .venv/bin/activate
-alembic upgrade head
-```
-
-Не запускайте Homebrew PostgreSQL и контейнер Compose одновременно: оба хотят порт 5432.
-
-Локальный пароль `senimradar` не является боевым секретом. Перед любым общим сервером его нужно заменить через переменную `DATABASE_URL`.
+`mysql` спросит пароль администратора локально и не покажет его. После этого `/api/v1/health/ready` должен ответить `200`. Пока пользователь не создан, интерфейс показывает «База данных не запущена», а остальные страницы открываются.

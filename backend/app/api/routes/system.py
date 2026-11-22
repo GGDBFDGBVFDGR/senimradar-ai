@@ -11,16 +11,16 @@ def capabilities() -> CapabilitiesResponse:
     model_configured = text_model_configured()
     return CapabilitiesResponse(
         product="SenimRadar AI",
-        stage=1,
+        stage=2,
         model_configured=model_configured,
         third_party_ai_enabled=False,
         supported_locales=["ru", "kk"],
         capabilities=[
             Capability(
                 key="text_analysis",
-                status="unavailable",
+                status="ready" if model_configured else "unavailable",
                 stage=2,
-                note_code="model_not_configured",
+                note_code="model_ready" if model_configured else "model_not_configured",
             ),
             Capability(
                 key="screenshot_analysis",

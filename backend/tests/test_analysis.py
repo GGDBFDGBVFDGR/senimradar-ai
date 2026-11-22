@@ -4,25 +4,40 @@ import logging
 SECRET = "OTP-CODE-998877-DO-NOT-LOG"
 
 
-def test_text_analysis_is_unavailable_and_not_a_prediction(client):
+def test_text_analysis_returns_a_model_result_without_a_percent(client):
+    message = "Служба безопасности банка: карта заблокирована, срочно сообщите код и переведите деньги"
+    response = client.post(
+        "/api/v1/analysis/text",
+        json={"text": message, "language": "ru"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["risk_level"] in {"low", "medium", "high", "unknown"}
+    assert body["risk_score"] is None
+    from app.ml.registry import load_runtime
+
+    runtime = load_runtime()
+    assert runtime is not None
+    assert body["model_version"] == runtime["payload"]["model_version"]
+    assert body["language_evaluation"] == "evaluated"
+    assert message not in response.text
+    assert "not_a_proof" in body["limitations"]
+
+
+def test_missing_model_stays_unavailable(client, monkeypatch):
+    monkeypatch.setenv("SENIMRADAR_MODEL_PATH", "/tmp/senimradar-missing-model.joblib")
+    from app.ml.registry import reset_runtime
+
+    reset_runtime()
     response = client.post(
         "/api/v1/analysis/text",
         json={"text": "Проверьте это сообщение", "language": "ru"},
     )
     assert response.status_code == 503
-    assert response.json() == {
-        "status": "unavailable",
-        "code": "model_not_configured",
-        "stage": 2,
-        "input_type": "text",
-        "language": "ru",
-        "message": "Text fraud analysis model is not configured.",
-        "model_version": None,
-        "risk_level": None,
-        "risk_score": None,
-    }
-    assert "explanation" not in response.json()
-    assert "detected_threats" not in response.json()
+    assert response.json()["code"] == "model_not_configured"
+    assert response.json()["risk_level"] is None
+    reset_runtime()
 
 
 def test_submitted_text_is_not_logged_or_echoed(client, caplog):
@@ -31,8 +46,9 @@ def test_submitted_text_is_not_logged_or_echoed(client, caplog):
             "/api/v1/analysis/text",
             json={"text": SECRET, "language": "ru"},
         )
-    assert response.status_code == 503
+    assert response.status_code == 200
     assert SECRET not in response.text
+    assert "998877" not in response.text
     assert SECRET not in caplog.text
 
 

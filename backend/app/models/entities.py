@@ -12,7 +12,6 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
-    Uuid,
     func,
     text,
 )
@@ -20,20 +19,23 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
 from app.db.base import Base
+from app.db.types import BOOL_SERVER_DEFAULT, MYSQL_TABLE, UUID_SERVER_DEFAULT, Guid
 
 
 class User(Base):
     """Anonymous identity placeholder. Passwords are intentionally absent."""
 
     __tablename__ = "users"
+    __table_args__ = (MYSQL_TABLE,)
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -46,15 +48,17 @@ class UserSettings(Base):
     __tablename__ = "user_settings"
     __table_args__ = (
         CheckConstraint("locale IN ('ru', 'kk', 'en')", name="ck_user_settings_locale"),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -64,21 +68,21 @@ class UserSettings(Base):
         Boolean,
         nullable=False,
         default=False,
-        server_default=text("false"),
+        server_default=BOOL_SERVER_DEFAULT,
     )
     allow_third_party_ai: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
         default=False,
-        server_default=text("false"),
+        server_default=BOOL_SERVER_DEFAULT,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -94,12 +98,14 @@ class ModelVersion(Base):
             "status IN ('unconfigured', 'active', 'retired')",
             name="ck_model_versions_status",
         ),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     version: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -107,7 +113,7 @@ class ModelVersion(Base):
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -134,20 +140,22 @@ class AnalysisRecord(Base):
         ),
         Index("ix_analysis_records_user_id", "user_id"),
         Index("ix_analysis_records_created_at", "created_at"),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     user_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
     model_version_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("model_versions.id", ondelete="RESTRICT"),
         nullable=True,
     )
@@ -160,10 +168,10 @@ class AnalysisRecord(Base):
         Boolean,
         nullable=False,
         default=False,
-        server_default=text("false"),
+        server_default=BOOL_SERVER_DEFAULT,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -188,21 +196,23 @@ class DetectedThreat(Base):
     __tablename__ = "detected_threats"
     __table_args__ = (
         UniqueConstraint("analysis_id", "threat_code", name="uq_detected_threats_analysis_code"),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     analysis_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("analysis_records.id", ondelete="CASCADE"),
         nullable=False,
     )
     threat_code: Mapped[str] = mapped_column(String(64), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -218,21 +228,23 @@ class AnalysisIndicator(Base):
             "indicator_code",
             name="uq_analysis_indicators_analysis_code",
         ),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     analysis_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("analysis_records.id", ondelete="CASCADE"),
         nullable=False,
     )
     indicator_code: Mapped[str] = mapped_column(String(64), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -248,21 +260,23 @@ class AnalysisRecommendation(Base):
             "recommendation_code",
             name="uq_analysis_recommendations_analysis_code",
         ),
+        MYSQL_TABLE,
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     analysis_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         ForeignKey("analysis_records.id", ondelete="CASCADE"),
         nullable=False,
     )
     recommendation_code: Mapped[str] = mapped_column(String(64), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -274,17 +288,21 @@ class AuditEvent(Base):
     """Operational events. The metadata column must not contain submitted content."""
 
     __tablename__ = "audit_events"
-    __table_args__ = (Index("ix_audit_events_created_at", "created_at"),)
+    __table_args__ = (
+        Index("ix_audit_events_created_at", "created_at"),
+        MYSQL_TABLE,
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
+        Guid(),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
+        server_default=UUID_SERVER_DEFAULT,
     )
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     event_metadata: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=func.now(),
     )

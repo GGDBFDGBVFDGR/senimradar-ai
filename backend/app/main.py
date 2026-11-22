@@ -20,7 +20,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version=__version__,
-        summary="Fraud-risk analysis API. Stage 1 does not run a model.",
+        summary="Fraud-risk analysis API. Stage 2 runs a local text model when its artifact is present.",
         debug=False,
     )
     app.add_middleware(SecurityHeadersMiddleware)

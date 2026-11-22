@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     app_name: str = "SenimRadar AI"
     environment: str = "development"
     api_prefix: str = "/api/v1"
-    database_url: str = "postgresql+psycopg://senimradar:senimradar@127.0.0.1:5432/senimradar"
+    database_url: str = "mysql+pymysql://senimradar@127.0.0.1:3306/senimradar_ai?charset=utf8mb4"
     cors_origins: str = (
         "http://localhost:5173,http://127.0.0.1:5173,"
         "http://localhost:5174,http://127.0.0.1:5174"

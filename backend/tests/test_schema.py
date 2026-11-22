@@ -1,5 +1,7 @@
 import app.models  # noqa: F401
+from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import configure_mappers
+from sqlalchemy.schema import CreateTable
 
 from app.db.base import Base
 
@@ -40,3 +42,14 @@ def test_analysis_records_do_not_store_raw_submissions():
     assert columns.isdisjoint(FORBIDDEN_CONTENT_COLUMNS)
     assert "history_consent" in columns
     assert "risk_score" in columns
+
+
+def test_tables_compile_for_mysql_utf8mb4():
+    configure_mappers()
+    dialect = mysql.dialect()
+    for table in Base.metadata.tables.values():
+        ddl = str(CreateTable(table).compile(dialect=dialect))
+        assert "ENGINE=InnoDB" in ddl
+        assert "utf8mb4" in ddl
+        assert "CHAR(36)" in ddl
+        assert "gen_random_uuid" not in ddl

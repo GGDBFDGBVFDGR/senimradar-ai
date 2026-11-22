@@ -1,0 +1,36 @@
+{
+  "model_version": "tfidf-linearsvm-0001m",
+  "algorithm": "svm",
+  "structural_markers": true,
+  "random_seed": 42,
+  "selected_c": 0.25,
+  "validation_macro_f1_by_c": {
+    "0.25": 0.805098,
+    "1.0": 0.799262,
+    "4.0": 0.800276
+  },
+  "uncertainty_margin": 0.14597,
+  "min_top_probability": null,
+  "validation_ece": 0.378511,
+  "confidence_calibrated": false,
+  "risk_score_displayed": false,
+  "trained_on": "adaption_train_plus_researcher_scenarios",
+  "experiment_date": "2026-11-22",
+  "counts": {
+    "adaption_train": 259,
+    "research_train": 87,
+    "validation_for_selection": 110,
+    "research_test": 78
+  },
+  "packages": {
+    "scikit-learn": "1.9.1",
+    "numpy": "2.5.5"
+  },
+  "limitations": [
+    "synthetic_training_data",
+    "researcher_authored_scenarios",
+    "kazakh_not_field_data",
+    "kazakh_not_evaluated",
+    "confidence_not_shown_as_percent"
+  ]
+}

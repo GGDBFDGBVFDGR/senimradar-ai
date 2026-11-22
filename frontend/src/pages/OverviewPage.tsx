@@ -12,6 +12,7 @@ export function OverviewPage() {
   const { health, ready, capabilities } = useSystemStatus();
 
   const databaseLabel = databaseCopy(messages, health.isError, ready.isLoading, ready.isError, ready.data?.database);
+  const modelReady = capabilities.data?.model_configured === true;
 
   return (
     <div className="space-y-8">
@@ -39,7 +40,9 @@ export function OverviewPage() {
         </div>
         <Card className="flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,rgb(34_211_238_/_0.08),transparent_65%)]">
           <RadarMark />
-          <p className="mt-2 text-center text-sm font-semibold text-ink">{messages.common.modelOff}</p>
+          <p className="mt-2 text-center text-sm font-semibold text-ink">
+            {modelReady ? messages.common.modelOn : messages.common.modelOff}
+          </p>
         </Card>
       </section>
 
@@ -47,7 +50,7 @@ export function OverviewPage() {
         <h2 className="font-display text-xl font-bold text-ink">{messages.overview.pipelineTitle}</h2>
         <ol className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {messages.overview.steps.map((step, index) => {
-            const waiting = index >= 2;
+            const waiting = !modelReady && index >= 2;
             return (
               <li key={step.title}>
                 <Card className="h-full">
@@ -85,7 +88,11 @@ export function OverviewPage() {
                       <h3 className="font-display text-lg font-bold text-ink">{copy.title}</h3>
                       <StatusBadge status={capability.status}>{statusLabel(messages, capability.status)}</StatusBadge>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-muted">{copy.body}</p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {capability.key === "text_analysis" && capability.status === "ready"
+                        ? messages.capabilities.text_analysis.readyBody
+                        : copy.body}
+                    </p>
                     <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
                       {formatMessage(noteLabel(messages, capability.note_code), { stage: capability.stage })}
                     </p>
@@ -126,7 +133,7 @@ export function OverviewPage() {
             ) : null}
           </Card>
           <Card>
-            <p className="text-sm text-muted">PostgreSQL</p>
+            <p className="text-sm text-muted">MySQL</p>
             <div className="mt-3">
               <StatusBadge status={ready.data?.database === "ok" ? "ok" : ready.isLoading ? "loading" : "degraded"}>
                 {databaseLabel}
@@ -136,7 +143,9 @@ export function OverviewPage() {
           <Card>
             <p className="text-sm text-muted">{messages.settings.modelTitle}</p>
             <div className="mt-3">
-              <StatusBadge status="unavailable">{messages.common.modelOff}</StatusBadge>
+              <StatusBadge status={modelReady ? "ok" : "unavailable"}>
+                {modelReady ? messages.common.modelOn : messages.common.modelOff}
+              </StatusBadge>
             </div>
             {health.data ? (
               <p className="mt-4 text-sm text-muted">{formatMessage(messages.common.version, { version: health.data.version })}</p>

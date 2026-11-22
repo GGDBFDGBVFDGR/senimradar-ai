@@ -1,0 +1,1461 @@
+{
+  "legacy_version": "tfidf-logreg-0001",
+  "legacy_sha256_unchanged": true,
+  "legacy_adaption_russian_test": {
+    "examples": 316,
+    "metrics": {
+      "per_label": {
+        "safe": {
+          "precision": 0.808824,
+          "recall": 0.887097,
+          "f1": 0.846154,
+          "support": 62
+        },
+        "needs_check": {
+          "precision": 0.944444,
+          "recall": 0.894737,
+          "f1": 0.918919,
+          "support": 57
+        },
+        "suspicious": {
+          "precision": 0.55,
+          "recall": 0.825,
+          "f1": 0.66,
+          "support": 40
+        },
+        "dangerous": {
+          "precision": 0.91791,
+          "recall": 0.783439,
+          "f1": 0.845361,
+          "support": 157
+        }
+      },
+      "macro_f1": 0.817608,
+      "confusion_matrix": {
+        "labels": [
+          "safe",
+          "needs_check",
+          "suspicious",
+          "dangerous"
+        ],
+        "matrix": [
+          [
+            55,
+            2,
+            0,
+            5
+          ],
+          [
+            5,
+            51,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            33,
+            5
+          ],
+          [
+            6,
+            1,
+            27,
+            123
+          ]
+        ]
+      },
+      "operating_points": {
+        "dangerous_only": {
+          "tp": 123,
+          "fp": 11,
+          "fn": 34,
+          "tn": 148,
+          "false_positive_rate": 0.069182,
+          "false_negative_rate": 0.216561
+        },
+        "suspicious_or_dangerous": {
+          "tp": 188,
+          "fp": 6,
+          "fn": 9,
+          "tn": 113,
+          "false_positive_rate": 0.05042,
+          "false_negative_rate": 0.045685
+        }
+      }
+    },
+    "harm": {
+      "dangerous_total": 157,
+      "dangerous_as_safe": 6,
+      "dangerous_as_warning": 28,
+      "dangerous_as_high": 123,
+      "safe_total": 62,
+      "safe_as_high": 5
+    }
+  },
+  "legacy_research_test": {
+    "all": {
+      "examples": 78,
+      "metrics": {
+        "per_label": {
+          "safe": {
+            "precision": 0.833333,
+            "recall": 0.238095,
+            "f1": 0.37037,
+            "support": 42
+          },
+          "needs_check": {
+            "precision": 1.0,
+            "recall": 0.666667,
+            "f1": 0.8,
+            "support": 3
+          },
+          "suspicious": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 3
+          },
+          "dangerous": {
+            "precision": 0.446429,
+            "recall": 0.833333,
+            "f1": 0.581395,
+            "support": 30
+          }
+        },
+        "macro_f1": 0.437941,
+        "confusion_matrix": {
+          "labels": [
+            "safe",
+            "needs_check",
+            "suspicious",
+            "dangerous"
+          ],
+          "matrix": [
+            [
+              10,
+              0,
+              5,
+              27
+            ],
+            [
+              0,
+              2,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              0,
+              3
+            ],
+            [
+              2,
+              0,
+              3,
+              25
+            ]
+          ]
+        },
+        "operating_points": {
+          "dangerous_only": {
+            "tp": 25,
+            "fp": 31,
+            "fn": 5,
+            "tn": 17,
+            "false_positive_rate": 0.645833,
+            "false_negative_rate": 0.166667
+          },
+          "suspicious_or_dangerous": {
+            "tp": 31,
+            "fp": 33,
+            "fn": 2,
+            "tn": 12,
+            "false_positive_rate": 0.733333,
+            "false_negative_rate": 0.060606
+          }
+        }
+      },
+      "harm": {
+        "dangerous_total": 30,
+        "dangerous_as_safe": 2,
+        "dangerous_as_warning": 3,
+        "dangerous_as_high": 25,
+        "safe_total": 42,
+        "safe_as_high": 27
+      }
+    },
+    "by_language": {
+      "kk": {
+        "examples": 30,
+        "metrics": {
+          "per_label": {
+            "safe": {
+              "precision": 0.666667,
+              "recall": 0.222222,
+              "f1": 0.333333,
+              "support": 18
+            },
+            "needs_check": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "suspicious": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "dangerous": {
+              "precision": 0.473684,
+              "recall": 0.75,
+              "f1": 0.580645,
+              "support": 12
+            }
+          },
+          "macro_f1": 0.228495,
+          "confusion_matrix": {
+            "labels": [
+              "safe",
+              "needs_check",
+              "suspicious",
+              "dangerous"
+            ],
+            "matrix": [
+              [
+                4,
+                0,
+                4,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                1,
+                9
+              ]
+            ]
+          },
+          "operating_points": {
+            "dangerous_only": {
+              "tp": 9,
+              "fp": 10,
+              "fn": 3,
+              "tn": 8,
+              "false_positive_rate": 0.555556,
+              "false_negative_rate": 0.25
+            },
+            "suspicious_or_dangerous": {
+              "tp": 10,
+              "fp": 14,
+              "fn": 2,
+              "tn": 4,
+              "false_positive_rate": 0.777778,
+              "false_negative_rate": 0.166667
+            }
+          }
+        },
+        "harm": {
+          "dangerous_total": 12,
+          "dangerous_as_safe": 2,
+          "dangerous_as_warning": 1,
+          "dangerous_as_high": 9,
+          "safe_total": 18,
+          "safe_as_high": 10
+        },
+        "roles": {
+          "hard_negative_as_dangerous": 2,
+          "warning_predicted_dangerous": 5,
+          "warning_predicted_suspicious": 1
+        }
+      },
+      "mixed": {
+        "examples": 12,
+        "metrics": {
+          "per_label": {
+            "safe": {
+              "precision": 1.0,
+              "recall": 0.222222,
+              "f1": 0.363636,
+              "support": 9
+            },
+            "needs_check": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "suspicious": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "dangerous": {
+              "precision": 0.3,
+              "recall": 1.0,
+              "f1": 0.461538,
+              "support": 3
+            }
+          },
+          "macro_f1": 0.206294,
+          "confusion_matrix": {
+            "labels": [
+              "safe",
+              "needs_check",
+              "suspicious",
+              "dangerous"
+            ],
+            "matrix": [
+              [
+                2,
+                0,
+                0,
+                7
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                3
+              ]
+            ]
+          },
+          "operating_points": {
+            "dangerous_only": {
+              "tp": 3,
+              "fp": 7,
+              "fn": 0,
+              "tn": 2,
+              "false_positive_rate": 0.777778,
+              "false_negative_rate": 0.0
+            },
+            "suspicious_or_dangerous": {
+              "tp": 3,
+              "fp": 7,
+              "fn": 0,
+              "tn": 2,
+              "false_positive_rate": 0.777778,
+              "false_negative_rate": 0.0
+            }
+          }
+        },
+        "harm": {
+          "dangerous_total": 3,
+          "dangerous_as_safe": 0,
+          "dangerous_as_warning": 0,
+          "dangerous_as_high": 3,
+          "safe_total": 9,
+          "safe_as_high": 7
+        },
+        "roles": {
+          "warning_predicted_dangerous": 3,
+          "hard_negative_as_dangerous": 2
+        }
+      },
+      "ru": {
+        "examples": 36,
+        "metrics": {
+          "per_label": {
+            "safe": {
+              "precision": 1.0,
+              "recall": 0.266667,
+              "f1": 0.421053,
+              "support": 15
+            },
+            "needs_check": {
+              "precision": 1.0,
+              "recall": 0.666667,
+              "f1": 0.8,
+              "support": 3
+            },
+            "suspicious": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "dangerous": {
+              "precision": 0.481481,
+              "recall": 0.866667,
+              "f1": 0.619048,
+              "support": 15
+            }
+          },
+          "macro_f1": 0.460025,
+          "confusion_matrix": {
+            "labels": [
+              "safe",
+              "needs_check",
+              "suspicious",
+              "dangerous"
+            ],
+            "matrix": [
+              [
+                4,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                2,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                2,
+                13
+              ]
+            ]
+          },
+          "operating_points": {
+            "dangerous_only": {
+              "tp": 13,
+              "fp": 14,
+              "fn": 2,
+              "tn": 7,
+              "false_positive_rate": 0.666667,
+              "false_negative_rate": 0.133333
+            },
+            "suspicious_or_dangerous": {
+              "tp": 18,
+              "fp": 12,
+              "fn": 0,
+              "tn": 6,
+              "false_positive_rate": 0.666667,
+              "false_negative_rate": 0.0
+            }
+          }
+        },
+        "harm": {
+          "dangerous_total": 15,
+          "dangerous_as_safe": 0,
+          "dangerous_as_warning": 2,
+          "dangerous_as_high": 13,
+          "safe_total": 15,
+          "safe_as_high": 10
+        },
+        "roles": {
+          "hard_negative_as_dangerous": 3,
+          "warning_predicted_dangerous": 6
+        }
+      }
+    }
+  },
+  "research_counts": {
+    "train": 87,
+    "validation": 45,
+    "test": 78
+  },
+  "research_overlap_with_adaption_test_templates_dropped": {},
+  "research_split_overlap": {
+    "train_validation": {
+      "shared_groups": 0,
+      "shared_templates": 0
+    },
+    "train_test": {
+      "shared_groups": 0,
+      "shared_templates": 0
+    },
+    "validation_test": {
+      "shared_groups": 0,
+      "shared_templates": 0
+    }
+  },
+  "candidates": [
+    {
+      "model_version": "tfidf-logreg-0002",
+      "structural_markers": false,
+      "selected_c": 0.25,
+      "validation_macro_f1_by_c": {
+        "0.25": 0.778358,
+        "1.0": 0.75832,
+        "4.0": 0.763881
+      },
+      "validation_macro_f1": 0.778358,
+      "validation_dangerous_precision": 0.783784,
+      "validation_dangerous_recall": 0.707317
+    },
+    {
+      "model_version": "tfidf-logreg-0002m",
+      "structural_markers": true,
+      "selected_c": 0.25,
+      "validation_macro_f1_by_c": {
+        "0.25": 0.820061,
+        "1.0": 0.810826,
+        "4.0": 0.805098
+      },
+      "validation_macro_f1": 0.820061,
+      "validation_dangerous_precision": 0.818182,
+      "validation_dangerous_recall": 0.878049
+    },
+    {
+      "model_version": "tfidf-linearsvm-0001",
+      "structural_markers": false,
+      "selected_c": 1.0,
+      "validation_macro_f1_by_c": {
+        "0.25": 0.753358,
+        "1.0": 0.770368,
+        "4.0": 0.737454
+      },
+      "validation_macro_f1": 0.770368,
+      "validation_dangerous_precision": 0.761905,
+      "validation_dangerous_recall": 0.780488
+    },
+    {
+      "model_version": "tfidf-linearsvm-0001m",
+      "structural_markers": true,
+      "selected_c": 0.25,
+      "validation_macro_f1_by_c": {
+        "0.25": 0.805098,
+        "1.0": 0.799262,
+        "4.0": 0.800276
+      },
+      "validation_macro_f1": 0.805098,
+      "validation_dangerous_precision": 0.804348,
+      "validation_dangerous_recall": 0.902439
+    }
+  ],
+  "selected_on_validation": "tfidf-linearsvm-0001m",
+  "min_top_probability": null,
+  "gate": {
+    "passed": true,
+    "reasons": [],
+    "activated": "tfidf-linearsvm-0001m"
+  },
+  "selected_test": {
+    "adaption_russian_test": {
+      "examples": 316,
+      "metrics": {
+        "per_label": {
+          "safe": {
+            "precision": 0.773333,
+            "recall": 0.935484,
+            "f1": 0.846715,
+            "support": 62
+          },
+          "needs_check": {
+            "precision": 0.981132,
+            "recall": 0.912281,
+            "f1": 0.945455,
+            "support": 57
+          },
+          "suspicious": {
+            "precision": 0.630435,
+            "recall": 0.725,
+            "f1": 0.674419,
+            "support": 40
+          },
+          "dangerous": {
+            "precision": 0.950704,
+            "recall": 0.859873,
+            "f1": 0.90301,
+            "support": 157
+          }
+        },
+        "macro_f1": 0.8424,
+        "confusion_matrix": {
+          "labels": [
+            "safe",
+            "needs_check",
+            "suspicious",
+            "dangerous"
+          ],
+          "matrix": [
+            [
+              58,
+              1,
+              0,
+              3
+            ],
+            [
+              5,
+              52,
+              0,
+              0
+            ],
+            [
+              7,
+              0,
+              29,
+              4
+            ],
+            [
+              5,
+              0,
+              17,
+              135
+            ]
+          ]
+        },
+        "operating_points": {
+          "dangerous_only": {
+            "tp": 135,
+            "fp": 7,
+            "fn": 22,
+            "tn": 152,
+            "false_positive_rate": 0.044025,
+            "false_negative_rate": 0.140127
+          },
+          "suspicious_or_dangerous": {
+            "tp": 185,
+            "fp": 3,
+            "fn": 12,
+            "tn": 116,
+            "false_positive_rate": 0.02521,
+            "false_negative_rate": 0.060914
+          }
+        }
+      },
+      "harm": {
+        "dangerous_total": 157,
+        "dangerous_as_safe": 5,
+        "dangerous_as_warning": 17,
+        "dangerous_as_high": 135,
+        "safe_total": 62,
+        "safe_as_high": 3
+      }
+    },
+    "research_test": {
+      "all": {
+        "examples": 78,
+        "metrics": {
+          "per_label": {
+            "safe": {
+              "precision": 0.871795,
+              "recall": 0.809524,
+              "f1": 0.839506,
+              "support": 42
+            },
+            "needs_check": {
+              "precision": 1.0,
+              "recall": 0.333333,
+              "f1": 0.5,
+              "support": 3
+            },
+            "suspicious": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "dangerous": {
+              "precision": 0.702703,
+              "recall": 0.866667,
+              "f1": 0.776119,
+              "support": 30
+            }
+          },
+          "macro_f1": 0.528906,
+          "confusion_matrix": {
+            "labels": [
+              "safe",
+              "needs_check",
+              "suspicious",
+              "dangerous"
+            ],
+            "matrix": [
+              [
+                34,
+                0,
+                1,
+                7
+              ],
+              [
+                0,
+                1,
+                0,
+                2
+              ],
+              [
+                1,
+                0,
+                0,
+                2
+              ],
+              [
+                4,
+                0,
+                0,
+                26
+              ]
+            ]
+          },
+          "operating_points": {
+            "dangerous_only": {
+              "tp": 26,
+              "fp": 11,
+              "fn": 4,
+              "tn": 37,
+              "false_positive_rate": 0.229167,
+              "false_negative_rate": 0.133333
+            },
+            "suspicious_or_dangerous": {
+              "tp": 28,
+              "fp": 10,
+              "fn": 5,
+              "tn": 35,
+              "false_positive_rate": 0.222222,
+              "false_negative_rate": 0.151515
+            }
+          }
+        },
+        "harm": {
+          "dangerous_total": 30,
+          "dangerous_as_safe": 4,
+          "dangerous_as_warning": 0,
+          "dangerous_as_high": 26,
+          "safe_total": 42,
+          "safe_as_high": 7
+        }
+      },
+      "by_language": {
+        "kk": {
+          "examples": 30,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.875,
+                "recall": 0.777778,
+                "f1": 0.823529,
+                "support": 18
+              },
+              "needs_check": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "dangerous": {
+                "precision": 0.769231,
+                "recall": 0.833333,
+                "f1": 0.8,
+                "support": 12
+              }
+            },
+            "macro_f1": 0.405882,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  14,
+                  0,
+                  1,
+                  3
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  2,
+                  0,
+                  0,
+                  10
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 10,
+                "fp": 3,
+                "fn": 2,
+                "tn": 15,
+                "false_positive_rate": 0.166667,
+                "false_negative_rate": 0.166667
+              },
+              "suspicious_or_dangerous": {
+                "tp": 10,
+                "fp": 4,
+                "fn": 2,
+                "tn": 14,
+                "false_positive_rate": 0.222222,
+                "false_negative_rate": 0.166667
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 12,
+            "dangerous_as_safe": 2,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 10,
+            "safe_total": 18,
+            "safe_as_high": 3
+          },
+          "roles": {
+            "warning_predicted_safe": 6
+          }
+        },
+        "mixed": {
+          "examples": 12,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.9,
+                "recall": 1.0,
+                "f1": 0.947368,
+                "support": 9
+              },
+              "needs_check": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "dangerous": {
+                "precision": 1.0,
+                "recall": 0.666667,
+                "f1": 0.8,
+                "support": 3
+              }
+            },
+            "macro_f1": 0.436842,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  9,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0,
+                  0,
+                  2
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 2,
+                "fp": 0,
+                "fn": 1,
+                "tn": 9,
+                "false_positive_rate": 0.0,
+                "false_negative_rate": 0.333333
+              },
+              "suspicious_or_dangerous": {
+                "tp": 2,
+                "fp": 0,
+                "fn": 1,
+                "tn": 9,
+                "false_positive_rate": 0.0,
+                "false_negative_rate": 0.333333
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 3,
+            "dangerous_as_safe": 1,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 2,
+            "safe_total": 9,
+            "safe_as_high": 0
+          },
+          "roles": {
+            "warning_predicted_safe": 3
+          }
+        },
+        "ru": {
+          "examples": 36,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.846154,
+                "recall": 0.733333,
+                "f1": 0.785714,
+                "support": 15
+              },
+              "needs_check": {
+                "precision": 1.0,
+                "recall": 0.333333,
+                "f1": 0.5,
+                "support": 3
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 3
+              },
+              "dangerous": {
+                "precision": 0.636364,
+                "recall": 0.933333,
+                "f1": 0.756757,
+                "support": 15
+              }
+            },
+            "macro_f1": 0.510618,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  11,
+                  0,
+                  0,
+                  4
+                ],
+                [
+                  0,
+                  1,
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  0,
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  0,
+                  0,
+                  14
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 14,
+                "fp": 8,
+                "fn": 1,
+                "tn": 13,
+                "false_positive_rate": 0.380952,
+                "false_negative_rate": 0.066667
+              },
+              "suspicious_or_dangerous": {
+                "tp": 16,
+                "fp": 6,
+                "fn": 2,
+                "tn": 12,
+                "false_positive_rate": 0.333333,
+                "false_negative_rate": 0.111111
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 15,
+            "dangerous_as_safe": 1,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 14,
+            "safe_total": 15,
+            "safe_as_high": 4
+          },
+          "roles": {
+            "warning_predicted_safe": 4,
+            "warning_predicted_dangerous": 2,
+            "hard_negative_as_dangerous": 1
+          }
+        }
+      }
+    },
+    "research_validation": {
+      "all": {
+        "examples": 45,
+        "metrics": {
+          "per_label": {
+            "safe": {
+              "precision": 0.833333,
+              "recall": 0.740741,
+              "f1": 0.784314,
+              "support": 27
+            },
+            "needs_check": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "suspicious": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "dangerous": {
+              "precision": 0.684211,
+              "recall": 0.866667,
+              "f1": 0.764706,
+              "support": 15
+            }
+          },
+          "macro_f1": 0.387255,
+          "confusion_matrix": {
+            "labels": [
+              "safe",
+              "needs_check",
+              "suspicious",
+              "dangerous"
+            ],
+            "matrix": [
+              [
+                20,
+                1,
+                1,
+                5
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                13
+              ]
+            ]
+          },
+          "operating_points": {
+            "dangerous_only": {
+              "tp": 13,
+              "fp": 6,
+              "fn": 2,
+              "tn": 24,
+              "false_positive_rate": 0.2,
+              "false_negative_rate": 0.133333
+            },
+            "suspicious_or_dangerous": {
+              "tp": 13,
+              "fp": 7,
+              "fn": 2,
+              "tn": 23,
+              "false_positive_rate": 0.233333,
+              "false_negative_rate": 0.133333
+            }
+          }
+        },
+        "harm": {
+          "dangerous_total": 15,
+          "dangerous_as_safe": 2,
+          "dangerous_as_warning": 0,
+          "dangerous_as_high": 13,
+          "safe_total": 27,
+          "safe_as_high": 5
+        }
+      },
+      "by_language": {
+        "kk": {
+          "examples": 27,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.928571,
+                "recall": 0.722222,
+                "f1": 0.8125,
+                "support": 18
+              },
+              "needs_check": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "dangerous": {
+                "precision": 0.666667,
+                "recall": 0.888889,
+                "f1": 0.761905,
+                "support": 9
+              }
+            },
+            "macro_f1": 0.393601,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  13,
+                  0,
+                  1,
+                  4
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0,
+                  0,
+                  8
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 8,
+                "fp": 4,
+                "fn": 1,
+                "tn": 14,
+                "false_positive_rate": 0.222222,
+                "false_negative_rate": 0.111111
+              },
+              "suspicious_or_dangerous": {
+                "tp": 8,
+                "fp": 5,
+                "fn": 1,
+                "tn": 13,
+                "false_positive_rate": 0.277778,
+                "false_negative_rate": 0.111111
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 9,
+            "dangerous_as_safe": 1,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 8,
+            "safe_total": 18,
+            "safe_as_high": 4
+          },
+          "roles": {
+            "hard_negative_as_dangerous": 3,
+            "warning_predicted_safe": 5,
+            "warning_predicted_dangerous": 1
+          }
+        },
+        "mixed": {
+          "examples": 3,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "needs_check": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "dangerous": {
+                "precision": 1.0,
+                "recall": 0.666667,
+                "f1": 0.8,
+                "support": 3
+              }
+            },
+            "macro_f1": 0.2,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0,
+                  0,
+                  2
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 2,
+                "fp": 0,
+                "fn": 1,
+                "tn": 0,
+                "false_positive_rate": 0.0,
+                "false_negative_rate": 0.333333
+              },
+              "suspicious_or_dangerous": {
+                "tp": 2,
+                "fp": 0,
+                "fn": 1,
+                "tn": 0,
+                "false_positive_rate": 0.0,
+                "false_negative_rate": 0.333333
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 3,
+            "dangerous_as_safe": 1,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 2,
+            "safe_total": 0,
+            "safe_as_high": 0
+          },
+          "roles": {}
+        },
+        "ru": {
+          "examples": 15,
+          "metrics": {
+            "per_label": {
+              "safe": {
+                "precision": 0.777778,
+                "recall": 0.777778,
+                "f1": 0.777778,
+                "support": 9
+              },
+              "needs_check": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 3
+              },
+              "suspicious": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "support": 0
+              },
+              "dangerous": {
+                "precision": 0.6,
+                "recall": 1.0,
+                "f1": 0.75,
+                "support": 3
+              }
+            },
+            "macro_f1": 0.381944,
+            "confusion_matrix": {
+              "labels": [
+                "safe",
+                "needs_check",
+                "suspicious",
+                "dangerous"
+              ],
+              "matrix": [
+                [
+                  7,
+                  1,
+                  0,
+                  1
+                ],
+                [
+                  2,
+                  0,
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  3
+                ]
+              ]
+            },
+            "operating_points": {
+              "dangerous_only": {
+                "tp": 3,
+                "fp": 2,
+                "fn": 0,
+                "tn": 10,
+                "false_positive_rate": 0.166667,
+                "false_negative_rate": 0.0
+              },
+              "suspicious_or_dangerous": {
+                "tp": 3,
+                "fp": 2,
+                "fn": 0,
+                "tn": 10,
+                "false_positive_rate": 0.166667,
+                "false_negative_rate": 0.0
+              }
+            }
+          },
+          "harm": {
+            "dangerous_total": 3,
+            "dangerous_as_safe": 0,
+            "dangerous_as_warning": 0,
+            "dangerous_as_high": 3,
+            "safe_total": 9,
+            "safe_as_high": 1
+          },
+          "roles": {
+            "warning_predicted_safe": 5,
+            "warning_predicted_dangerous": 1
+          }
+        }
+      }
+    }
+  },
+  "locked_probe": {
+    "legacy": {
+      "raw_label": "dangerous",
+      "top_probability_or_margin_softmax": 0.3514,
+      "shown_risk": "high",
+      "withheld_for_low_confidence": false,
+      "indicators": [
+        "fraud_warning"
+      ],
+      "cues": [
+        "код",
+        "никому"
+      ],
+      "cues_are_substrings": true
+    },
+    "selected": {
+      "raw_label": "safe",
+      "top_probability_or_margin_softmax": 0.4878,
+      "shown_risk": "low",
+      "withheld_for_low_confidence": false,
+      "indicators": [
+        "fraud_warning"
+      ],
+      "cues": [
+        "код",
+        "sms"
+      ],
+      "cues_are_substrings": true
+    }
+  },
+  "transformer": {
+    "ran": false,
+    "reason": "16 GB RAM, 8 CPU cores, about 15 GB free disk. Fine-tuning was not started without consent."
+  },
+  "auxiliary_calibration": {
+    "status": "measured",
+    "validation_ece": 0.135254,
+    "accepted_for_display": false,
+    "shipped": false
+  }
+}

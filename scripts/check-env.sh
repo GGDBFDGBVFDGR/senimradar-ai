@@ -6,18 +6,18 @@ python3 --version || echo "python3: missing"
 node --version || echo "node: missing"
 npm --version || echo "npm: missing"
 git --version || echo "git: missing"
-if command -v psql >/dev/null 2>&1; then
-  psql --version
+if command -v mysql >/dev/null 2>&1; then
+  mysql --version
 else
-  echo "psql: not installed"
+  echo "mysql client: not installed"
+fi
+if nc -z 127.0.0.1 3306 >/dev/null 2>&1; then
+  echo "mysql: accepting TCP connections on 127.0.0.1:3306"
+else
+  echo "mysql: not accepting TCP connections on 127.0.0.1:3306"
 fi
 if command -v docker >/dev/null 2>&1; then
   docker --version
 else
   echo "docker: not installed"
-fi
-if command -v pg_isready >/dev/null 2>&1 && pg_isready -h 127.0.0.1 -p 5432 >/dev/null 2>&1; then
-  echo "postgres: accepting connections on 127.0.0.1:5432"
-else
-  echo "postgres: not accepting connections on 127.0.0.1:5432"
 fi

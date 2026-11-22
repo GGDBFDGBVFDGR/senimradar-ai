@@ -97,6 +97,49 @@ it("returns an unavailable analysis instead of a risk score", async () => {
   expect(result).not.toHaveTextContent(/высокий|high/i);
 });
 
+it("shows a real model result without a percentage", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.mocked(fetch);
+  fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.endsWith("/api/v1/analysis/text") && init?.method === "POST") {
+      return json({
+        status: "ok",
+        language: "ru",
+        language_evaluation: "evaluated",
+        model_version: "tfidf-logreg-0001",
+        risk_level: "high",
+        risk_score: null,
+        uncertain: false,
+        indicators: ["payment_request"],
+        cues: ["перевод"],
+        recommendations: ["not_proof", "do_not_transfer"],
+        limitations: ["synthetic_training_data", "confidence_not_calibrated"],
+      });
+    }
+    if (url.endsWith("/api/v1/health/ready")) {
+      return json({ status: "ok", database: "ok" });
+    }
+    if (url.endsWith("/api/v1/health")) {
+      return json({ status: "ok", service: "SenimRadar AI", version: "0.1.0", environment: "test" });
+    }
+    if (url.endsWith("/api/v1/system/capabilities")) {
+      return json({ ...capabilities, stage: 2, model_configured: true });
+    }
+    return json({ status: "error", code: "not_found" }, 404);
+  });
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "AI-сканер" }));
+  await user.type(screen.getByLabelText("Текст сообщения"), "Код 123456 перевод");
+  await user.click(screen.getByRole("button", { name: "Проверить" }));
+  const result = await screen.findByTestId("analysis-result");
+  expect(result).toHaveTextContent("Высокий предполагаемый риск");
+  expect(result).toHaveTextContent("tfidf-logreg-0001");
+  expect(result).toHaveTextContent("Просьба перевести или заплатить");
+  expect(result).not.toHaveTextContent("123456");
+  expect(result).not.toHaveTextContent("%");
+});
+
 it("keeps unfinished modules from accepting data", async () => {
   const user = userEvent.setup();
   render(<App />);
