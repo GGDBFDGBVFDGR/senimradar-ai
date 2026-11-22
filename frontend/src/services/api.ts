@@ -5,7 +5,28 @@ import type {
   TextAnalysisResult,
 } from "../types/system.ts";
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
+
+export async function apiBaseUrl(): Promise<string> {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  if (typeof configured === "string" && configured.length > 0) {
+    return configured.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}api-config.json`, { cache: "no-store" });
+      if (response.ok) {
+        const body = (await response.json()) as { apiBaseUrl?: unknown };
+        if (typeof body.apiBaseUrl === "string" && body.apiBaseUrl.startsWith("https://")) {
+          return body.apiBaseUrl.replace(/\/$/, "");
+        }
+      }
+    } catch {
+      return LOCAL_API_BASE_URL;
+    }
+  }
+  return LOCAL_API_BASE_URL;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -22,7 +43,7 @@ export class ApiError extends Error {
 async function getJson<T>(path: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${await apiBaseUrl()}${path}`, {
       headers: { Accept: "application/json" },
     });
   } catch {
@@ -41,7 +62,7 @@ export function getHealth(): Promise<HealthResponse> {
 export async function getReady(): Promise<ReadyResponse> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/health/ready`, {
+    response = await fetch(`${await apiBaseUrl()}/api/v1/health/ready`, {
       headers: { Accept: "application/json" },
     });
   } catch {
@@ -64,7 +85,7 @@ export async function submitTextAnalysis(
 ): Promise<TextAnalysisResult> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/analysis/text`, {
+    response = await fetch(`${await apiBaseUrl()}/api/v1/analysis/text`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -152,7 +173,7 @@ export async function submitScreenshot(file: File, language: "auto" | "ru" | "kk
   body.append("language", language);
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/analysis/screenshot`, {
+    response = await fetch(`${await apiBaseUrl()}/api/v1/analysis/screenshot`, {
       method: "POST",
       headers: { Accept: "application/json" },
       body,
@@ -220,7 +241,7 @@ type MessagesUrlCode = {
 export async function submitUrlAnalysis(url: string): Promise<UrlAnalysisResult> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/analysis/url`, {
+    response = await fetch(`${await apiBaseUrl()}/api/v1/analysis/url`, {
       method: "POST",
       headers: {
         Accept: "application/json",
