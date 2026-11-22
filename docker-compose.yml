@@ -1,0 +1,23 @@
+name: senimradar
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: senimradar-postgres
+    environment:
+      POSTGRES_USER: senimradar
+      POSTGRES_PASSWORD: senimradar
+      POSTGRES_DB: senimradar
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - senimradar_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U senimradar -d senimradar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  senimradar_postgres:

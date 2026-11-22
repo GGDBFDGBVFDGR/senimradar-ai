@@ -1,0 +1,109 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+
+import App from "./App.tsx";
+
+const capabilities = {
+  product: "SenimRadar AI",
+  stage: 1,
+  model_configured: false,
+  third_party_ai_enabled: false,
+  supported_locales: ["ru", "kk"],
+  capabilities: [
+    { key: "text_analysis", status: "unavailable", stage: 2, note_code: "model_not_configured" },
+    { key: "screenshot_analysis", status: "planned", stage: 3, note_code: "scheduled_stage" },
+    { key: "url_analysis", status: "planned", stage: 4, note_code: "scheduled_stage" },
+    { key: "voice_analysis", status: "planned", stage: 6, note_code: "scheduled_stage" },
+    { key: "history", status: "disabled", stage: 7, note_code: "consent_required" },
+    { key: "insights", status: "unavailable", stage: 5, note_code: "requires_real_records" },
+  ],
+};
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+beforeEach(() => {
+  localStorage.clear();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/v1/health/ready")) {
+        return json({ status: "degraded", database: "unavailable" }, 503);
+      }
+      if (url.endsWith("/api/v1/health")) {
+        return json({
+          status: "ok",
+          service: "SenimRadar AI",
+          version: "0.1.0",
+          environment: "test",
+        });
+      }
+      if (url.endsWith("/api/v1/system/capabilities")) {
+        return json(capabilities);
+      }
+      if (url.endsWith("/api/v1/analysis/text") && init?.method === "POST") {
+        return json(
+          {
+            status: "unavailable",
+            code: "model_not_configured",
+            stage: 2,
+            message: "Text fraud analysis model is not configured.",
+            model_version: null,
+            risk_level: null,
+            risk_score: null,
+          },
+          503,
+        );
+      }
+      return json({ status: "error", code: "not_found" }, 404);
+    }),
+  );
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+it("starts in Russian and switches the interface to Kazakh", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  expect(screen.getByRole("heading", { name: "Проверь, прежде чем доверять" })).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Қазақша" }));
+  expect(screen.getByRole("heading", { name: "Сенбес бұрын, тексер." })).toBeInTheDocument();
+});
+
+it("shows live module status without pretending the model is ready", async () => {
+  render(<App />);
+  const textModule = await screen.findByTestId("capability-text_analysis");
+  expect(textModule).toHaveTextContent("Недоступно");
+  expect(await screen.findByText("База данных не запущена")).toBeInTheDocument();
+});
+
+it("returns an unavailable analysis instead of a risk score", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "AI-сканер" }));
+  await user.type(screen.getByLabelText("Текст сообщения"), "Код 123456");
+  await user.click(screen.getByRole("button", { name: "Проверить" }));
+  const result = await screen.findByTestId("analysis-result");
+  expect(result).toHaveTextContent("Анализ недоступен");
+  expect(result).not.toHaveTextContent("123456");
+  expect(result).not.toHaveTextContent(/высокий|high/i);
+});
+
+it("keeps unfinished modules from accepting data", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "Скриншоты" }));
+  expect(screen.getByLabelText("Файл скриншота")).toBeDisabled();
+  await user.click(screen.getByRole("link", { name: "Ссылки" }));
+  expect(screen.getByLabelText("Адрес")).toBeDisabled();
+  await user.click(screen.getByRole("link", { name: "История" }));
+  expect(screen.getByText("Сохранённых проверок нет.")).toBeInTheDocument();
+});
