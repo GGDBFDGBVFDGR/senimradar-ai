@@ -14,23 +14,28 @@ import { SettingsPage } from "./pages/SettingsPage.tsx";
 import { UrlPage } from "./pages/UrlPage.tsx";
 import { VoicePage } from "./pages/VoicePage.tsx";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <AppShell />,
-    children: [
-      { index: true, element: <OverviewPage /> },
-      { path: "scanner", element: <ScannerPage /> },
-      { path: "screenshot", element: <ScreenshotPage /> },
-      { path: "url", element: <UrlPage /> },
-      { path: "voice", element: <VoicePage /> },
-      { path: "history", element: <HistoryPage /> },
-      { path: "insights", element: <InsightsPage /> },
-      { path: "settings", element: <SettingsPage /> },
-      { path: "*", element: <NotFoundPage /> },
-    ],
-  },
-]);
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <AppShell />,
+      children: [
+        { index: true, element: <OverviewPage /> },
+        { path: "scanner", element: <ScannerPage /> },
+        { path: "screenshot", element: <ScreenshotPage /> },
+        { path: "url", element: <UrlPage /> },
+        { path: "voice", element: <VoicePage /> },
+        { path: "history", element: <HistoryPage /> },
+        { path: "insights", element: <InsightsPage /> },
+        { path: "settings", element: <SettingsPage /> },
+        { path: "*", element: <NotFoundPage /> },
+      ],
+    },
+  ],
+  { basename },
+);
 
 export default function App() {
   const [queryClient] = useState(
