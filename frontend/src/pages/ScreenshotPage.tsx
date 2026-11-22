@@ -207,6 +207,11 @@ export function ScreenshotPage() {
               <p id="ocr-hint" className="text-sm leading-6 text-muted">
                 {messages.screenshot.textHint}
               </p>
+              {/[А-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі]/.test(text) && text.includes("://") ? (
+                <p className="text-sm leading-6 text-amber-50" data-testid="ocr-damaged-link">
+                  {messages.screenshot.damagedLink}
+                </p>
+              ) : null}
               {analysisLanguage === "" ? <p className="text-sm leading-6 text-amber-50">{messages.screenshot.confirmLanguage}</p> : null}
               <label htmlFor="ocr-language" className="text-sm font-semibold text-ink">
                 {messages.screenshot.languageLabel}

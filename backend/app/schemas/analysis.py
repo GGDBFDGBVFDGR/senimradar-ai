@@ -48,6 +48,44 @@ class UnavailableAnalysis(BaseModel):
     risk_score: None = None
 
 
+class UrlAnalysisRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    url: str = Field(min_length=1, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def normalize_url(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped or "\x00" in stripped:
+            raise ValueError("invalid")
+        return stripped
+
+
+class UrlUnavailable(BaseModel):
+    status: Literal["unavailable"]
+    code: Literal["model_not_configured"]
+    stage: Literal[4] = 4
+    input_type: Literal["url"] = "url"
+    message: str
+    model_version: None = None
+    risk_level: None = None
+    risk_score: None = None
+
+
+class UrlAnalysisResult(BaseModel):
+    status: Literal["ok", "needs_review", "limited"]
+    code: str | None = None
+    risk_level: Literal["low", "high", "unknown"]
+    risk_score: None = None
+    model_version: str | None
+    uncertain: bool
+    indicators: list[str]
+    recommendations: list[str]
+    limitations: list[str]
+    classified: bool
+
+
 class TextAnalysisResult(BaseModel):
     status: Literal["ok", "insufficient"]
     input_type: Literal["text"] = "text"

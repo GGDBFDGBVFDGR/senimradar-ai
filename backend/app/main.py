@@ -20,7 +20,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version=__version__,
-        summary="Fraud-risk analysis API. Stage 3 reads screenshot text locally and classifies it with the existing text model.",
+        summary="Fraud-risk analysis API. Stage 4 scores a URL string locally and does not open it.",
         debug=False,
     )
     app.add_middleware(SecurityHeadersMiddleware)

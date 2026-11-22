@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.ml.status import text_model_configured
 from app.ocr.engine import ocr_available
 from app.ocr.tesseract_ocr import kazakh_ocr_ready
+from app.url.registry import url_model_configured
 from app.schemas.system import CapabilitiesResponse, Capability
 
 router = APIRouter(tags=["system"])
@@ -14,7 +15,7 @@ def capabilities() -> CapabilitiesResponse:
     screenshot_ready = ocr_available()
     return CapabilitiesResponse(
         product="SenimRadar AI",
-        stage=3,
+        stage=4,
         model_configured=model_configured,
         third_party_ai_enabled=False,
         supported_locales=["ru", "kk"],
@@ -33,9 +34,9 @@ def capabilities() -> CapabilitiesResponse:
             ),
             Capability(
                 key="url_analysis",
-                status="planned",
+                status="ready" if url_model_configured() else "unavailable",
                 stage=4,
-                note_code="scheduled_stage",
+                note_code="url_model_ready" if url_model_configured() else "url_model_missing",
             ),
             Capability(
                 key="voice_analysis",

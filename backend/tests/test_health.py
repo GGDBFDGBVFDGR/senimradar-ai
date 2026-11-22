@@ -23,7 +23,9 @@ def test_capabilities_report_the_local_model_when_the_artifact_exists(client):
     response = client.get("/api/v1/system/capabilities")
     assert response.status_code == 200
     body = response.json()
-    assert body["stage"] == 3
+    assert body["stage"] == 4
+    url_analysis = next(item for item in body["capabilities"] if item["key"] == "url_analysis")
+    assert url_analysis["status"] in {"ready", "unavailable"}
     screenshot = next(item for item in body["capabilities"] if item["key"] == "screenshot_analysis")
     assert screenshot["status"] in {"ready", "unavailable"}
     assert body["third_party_ai_enabled"] is False

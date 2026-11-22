@@ -263,7 +263,54 @@ it("keeps unfinished modules from accepting data", async () => {
   await user.click(screen.getByRole("link", { name: "Скриншоты" }));
   expect(screen.getByLabelText(/Перетащите снимок/)).not.toBeDisabled();
   await user.click(screen.getByRole("link", { name: "Ссылки" }));
-  expect(screen.getByLabelText("Адрес")).toBeDisabled();
+  expect(screen.getByLabelText("Адрес")).toBeEnabled();
+  await user.click(screen.getByRole("link", { name: "Голос" }));
+  expect(screen.getByLabelText("Аудиозапись")).toBeDisabled();
   await user.click(screen.getByRole("link", { name: "История" }));
   expect(screen.getByText("Сохранённых проверок нет.")).toBeInTheDocument();
+});
+
+it("shows a URL result without turning the address into a link", async () => {
+  const user = userEvent.setup();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/v1/health/ready")) {
+        return json({ status: "ok", database: "ok" });
+      }
+      if (url.endsWith("/api/v1/health")) {
+        return json({ status: "ok", service: "SenimRadar AI", version: "0.1.0", environment: "test" });
+      }
+      if (url.endsWith("/api/v1/system/capabilities")) {
+        return json(capabilities);
+      }
+      if (url.endsWith("/api/v1/analysis/url") && init?.method === "POST") {
+        return json({
+          status: "ok",
+          code: null,
+          risk_level: "unknown",
+          risk_score: null,
+          model_version: "url-tfidf-linearsvm-0001",
+          uncertain: true,
+          classified: true,
+          indicators: ["lookalike_brand"],
+          recommendations: ["result_uncertain"],
+          limitations: ["not_fetched"],
+        });
+      }
+      return json({ status: "error", code: "not_found" }, 404);
+    }),
+  );
+  render(<App />);
+  await user.click(screen.getByRole("link", { name: "Ссылки" }));
+  const field = screen.getByLabelText("Адрес");
+  await user.type(field, "https://paypa1.example/login");
+  await user.click(screen.getByRole("button", { name: "Проверить адрес" }));
+  const result = await screen.findByTestId("url-result");
+  expect(result).toHaveTextContent("Риск не определён");
+  expect(result).toHaveTextContent("url-tfidf-linearsvm-0001");
+  expect(result).toHaveTextContent("Часть имени похожа на известный бренд");
+  expect(result.querySelector("a")).toBeNull();
+  expect(result).not.toHaveTextContent("%");
 });

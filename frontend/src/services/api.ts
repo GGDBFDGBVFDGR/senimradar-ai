@@ -191,6 +191,102 @@ export async function submitScreenshot(file: File, language: "auto" | "ru" | "kk
   return { kind: "error", code };
 }
 
+export type UrlAnalysisResult =
+  | {
+      kind: "ok" | "needs_review" | "limited";
+      status: "ok" | "needs_review" | "limited";
+      code: keyof MessagesUrlCode | null;
+      riskLevel: "low" | "high" | "unknown";
+      modelVersion: string | null;
+      uncertain: boolean;
+      classified: boolean;
+      indicators: string[];
+      recommendations: string[];
+      limitations: string[];
+    }
+  | { kind: "unavailable" }
+  | { kind: "validation" }
+  | { kind: "error" };
+
+type MessagesUrlCode = {
+  ocr_damaged: string;
+  internal_address: string;
+  local_name: string;
+  unsupported_scheme: string;
+  scheme_required: string;
+  invalid_address: string;
+};
+
+export async function submitUrlAnalysis(url: string): Promise<UrlAnalysisResult> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/v1/analysis/url`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+    });
+  } catch {
+    return { kind: "error" };
+  }
+  if (response.status === 503) {
+    return { kind: "unavailable" };
+  }
+  if (response.status === 422) {
+    return { kind: "validation" };
+  }
+  if (response.status !== 200) {
+    return { kind: "error" };
+  }
+  const body = (await response.json()) as {
+    status?: unknown;
+    code?: unknown;
+    risk_level?: unknown;
+    risk_score?: unknown;
+    model_version?: unknown;
+    uncertain?: unknown;
+    classified?: unknown;
+    indicators?: unknown;
+    recommendations?: unknown;
+    limitations?: unknown;
+  };
+  const risk = body.risk_level;
+  const status = body.status;
+  if (
+    (status === "ok" || status === "needs_review" || status === "limited") &&
+    (risk === "low" || risk === "high" || risk === "unknown") &&
+    body.risk_score == null
+  ) {
+    const code = typeof body.code === "string" ? body.code : null;
+    return {
+      kind: status,
+      status,
+      code: isUrlCode(code) ? code : null,
+      riskLevel: risk,
+      modelVersion: typeof body.model_version === "string" ? body.model_version : null,
+      uncertain: body.uncertain === true,
+      classified: body.classified === true,
+      indicators: stringList(body.indicators),
+      recommendations: stringList(body.recommendations),
+      limitations: stringList(body.limitations),
+    };
+  }
+  return { kind: "error" };
+}
+
+function isUrlCode(value: string | null): value is keyof MessagesUrlCode {
+  return (
+    value === "ocr_damaged" ||
+    value === "internal_address" ||
+    value === "local_name" ||
+    value === "unsupported_scheme" ||
+    value === "scheme_required" ||
+    value === "invalid_address"
+  );
+}
+
 function stringList(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];

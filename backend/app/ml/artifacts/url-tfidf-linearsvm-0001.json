@@ -1,0 +1,80 @@
+{
+  "model_version": "url-tfidf-linearsvm-0001",
+  "task": "url",
+  "algorithm": "character tf-idf 3-5 plus structural features, svm",
+  "confidence_calibrated": false,
+  "risk_score_displayed": false,
+  "uncertainty_margin": 1.1,
+  "sources": {
+    "phishing": "PhishTank verified online CSV. Community labels. Pages were not opened.",
+    "benign": "Majestic Million top domains, CC BY 3.0. Paths were constructed locally and were not crawled."
+  },
+  "counts": {
+    "phishing_domains": 5244,
+    "template_rows_removed_from_train_and_validation": 87,
+    "train": 82361,
+    "train_phishing": 40617,
+    "train_benign": 41744,
+    "validation": 10285,
+    "validation_phishing": 897,
+    "validation_benign": 9388,
+    "test": 9837,
+    "test_phishing": 990,
+    "test_benign": 8847
+  },
+  "validation": {
+    "svm": {
+      "phishing_precision": 0.9551,
+      "phishing_recall": 0.9008,
+      "benign_precision": 0.9906,
+      "benign_recall": 0.996,
+      "macro_f1": 0.9602,
+      "false_negatives": 89,
+      "false_positives": 38,
+      "true_phishing": 808,
+      "true_benign": 9350,
+      "iterations": 10
+    },
+    "logistic": {
+      "phishing_precision": 0.9686,
+      "phishing_recall": 0.8584,
+      "benign_precision": 0.9866,
+      "benign_recall": 0.9973,
+      "macro_f1": 0.9511,
+      "false_negatives": 127,
+      "false_positives": 25,
+      "true_phishing": 770,
+      "true_benign": 9363,
+      "iterations": 204
+    }
+  },
+  "selected_on": "validation macro-F1",
+  "test_raw": {
+    "phishing_precision": 0.9773,
+    "phishing_recall": 0.9121,
+    "benign_precision": 0.9902,
+    "benign_recall": 0.9976,
+    "macro_f1": 0.9687,
+    "false_negatives": 87,
+    "false_positives": 21,
+    "true_phishing": 903,
+    "true_benign": 8826
+  },
+  "test_after_validation_margin": {
+    "phishing_precision": 1.0,
+    "phishing_recall": 0.9917,
+    "benign_precision": 0.9992,
+    "benign_recall": 1.0,
+    "macro_f1": 0.9977,
+    "false_negatives": 6,
+    "false_positives": 0,
+    "true_phishing": 715,
+    "true_benign": 7091,
+    "kept": 7812,
+    "abstained": 2025
+  },
+  "leakage": {
+    "same_registrable_domain_across_phishing_splits": 0,
+    "same_url_across_labels": 0
+  }
+}
